@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0e">
+<title>it's for u dvshka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* layout: one full-height stage, one scene at a time, content centred in a narrow phone column */
+:root{
+  --bg:#0b0b0e; --bg-2:#131218; --fg:#f4f1fb; --muted:#8f8a9e;
+  --violet:#a68bff; --violet-deep:#6a4ed8; --line:rgba(166,139,255,.22);
+  --paper:#fbfaf7; --rope:#cbbfa6;
+  --f-display:"Cormorant Garamond","Times New Roman",serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%;background:var(--bg);color:var(--fg)}
+body{margin:0;font-family:var(--f-body);-webkit-font-smoothing:antialiased;overflow:hidden;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+
+/* ambient light + grain */
+.aura{position:fixed;inset:-20%;pointer-events:none;z-index:0;
+  background:radial-gradient(40% 30% at 30% 20%,rgba(122,92,255,.18),transparent 70%),
+             radial-gradient(35% 28% at 75% 85%,rgba(166,139,255,.12),transparent 70%);
+  animation:drift 18s ease-in-out infinite alternate;transition:opacity 1.2s}
+body.dark-scene .aura{opacity:.15}
+@keyframes drift{to{transform:translate3d(4%,-3%,0) scale(1.08)}}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* progress */
+.steps{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;gap:5px;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 0;max-width:460px;margin:0 auto;transition:opacity .6s}
+.steps i{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;position:relative}
+.steps i::after{content:"";position:absolute;inset:0;background:var(--violet);transform:scaleX(0);transform-origin:left;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.steps i.on::after{transform:scaleX(1)}
+.steps.hide{opacity:0}
+
+/* scenes */
+.stage{position:relative;z-index:2;height:100%;}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:22px;padding:calc(env(safe-area-inset-top,0px) + 34px) 16px calc(env(safe-area-inset-bottom,0px) + 26px);
+  text-align:center;visibility:hidden;opacity:0;pointer-events:none}
+.scene.active{visibility:visible;opacity:1;pointer-events:auto;animation:fadeIn .9s cubic-bezier(.2,.7,.2,1) both}
+.scene.leaving{visibility:visible;animation:fadeOut .45s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes fadeOut{to{opacity:0;transform:translateY(-10px);filter:blur(4px)}}
+.scene.active .rise{animation:fadeIn .9s cubic-bezier(.2,.7,.2,1) both}
+.scene.active .d1{animation-delay:.15s}.scene.active .d2{animation-delay:.35s}.scene.active .d3{animation-delay:.6s}
+
+/* buttons */
+.btn{appearance:none;border:1px solid var(--line);background:rgba(166,139,255,.08);color:var(--fg);
+  font:500 15px/1 var(--f-body);letter-spacing:.02em;padding:15px 26px;border-radius:999px;cursor:pointer;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:background .25s,border-color .25s,transform .15s,box-shadow .25s;
+  box-shadow:0 0 0 0 rgba(166,139,255,0)}
+.btn:hover{background:rgba(166,139,255,.16);border-color:rgba(166,139,255,.5);box-shadow:0 0 30px -6px rgba(166,139,255,.55)}
+.btn:active{transform:scale(.96)}
+.btn:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
+.btn .arr{display:inline-block;transition:transform .25s}
+.btn:hover .arr{transform:translateX(3px)}
+.btn.solid{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
+.btn.solid:hover{background:#fff;box-shadow:0 0 40px -4px rgba(166,139,255,.7)}
+
+/* start */
+.eyebrow{font:400 11px/1 var(--f-mono);letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.hero{font:italic 500 clamp(46px,14vw,84px)/.92 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.hero em{font-style:italic;color:var(--violet);text-shadow:0 0 40px rgba(166,139,255,.55)}
+.sub{font:400 14px/1.5 var(--f-body);color:var(--muted);margin:0}
+.heart{width:9px;height:9px;background:var(--violet);border-radius:50%;box-shadow:0 0 18px 4px rgba(166,139,255,.6);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.5);opacity:.6}}
+
+/* doxx */
+.term{width:min(100%,380px);text-align:left;font:400 13px/1.7 var(--f-mono);color:var(--muted)}
+.term .ln{opacity:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.term .ln.show{opacity:1;transition:opacity .2s}
+.term .ok{color:var(--violet)}
+.bar{height:2px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:10px;overflow:hidden}
+.bar b{display:block;height:100%;width:0;background:var(--violet);box-shadow:0 0 12px var(--violet)}
+.doxx{font:500 clamp(20px,5.6vw,26px)/1.45 var(--f-mono);margin:0;max-width:380px;text-align:left;min-height:4.4em;color:var(--fg)}
+.doxx .cur{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:var(--violet);margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.reveal-wrap{opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s}
+.reveal-wrap.show{opacity:1;transform:none}
+
+/* video */
+.frame{position:relative;border-radius:22px;overflow:hidden;background:#000;
+  box-shadow:0 30px 80px -30px rgba(106,78,216,.65),0 0 0 1px rgba(255,255,255,.06);
+  max-width:100%}
+.frame.v{height:min(60svh,60vh,560px);aspect-ratio:464/848}
+.frame.sq{width:min(86vw,420px,52svh);aspect-ratio:1/1}
+.frame video{display:block;width:100%;height:100%;object-fit:cover}
+.frame .prog{position:absolute;left:12px;right:12px;bottom:10px;height:2px;background:rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+.frame .prog b{display:block;height:100%;width:0;background:#fff}
+.frame .tap{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .25s;background:rgba(0,0,0,.25)}
+.frame.paused .tap{opacity:1}
+.tap span{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center}
+.tap span::before{content:"";border-left:16px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
+.mute{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(0,0,0,.35);color:#fff;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:15px;cursor:pointer;display:grid;place-items:center}
+.cap{font:italic 400 clamp(22px,6.4vw,30px)/1.2 var(--f-display);margin:0;max-width:24ch;text-wrap:balance}
+
+/* gallery */
+.gallery-scene{justify-content:flex-start;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.gallery-scene .head{font:italic 500 clamp(30px,9vw,44px)/1 var(--f-display);margin:8px 0 0}
+.ropes{width:min(100%,420px);display:flex;flex-direction:column;gap:6px}
+.rope{position:relative;height:auto;padding-top:22px}
+.rope svg{position:absolute;left:-16px;right:-16px;top:0;width:calc(100% + 32px);height:40px;overflow:visible}
+.rope svg path{fill:none;stroke:var(--rope);stroke-width:1.4;opacity:.7}
+.row{display:flex;justify-content:space-around;align-items:flex-start;gap:10px}
+.pola{--r:0deg;position:relative;width:44%;background:var(--paper);padding:7px 7px 30px;border-radius:2px;
+  box-shadow:0 18px 30px -14px rgba(0,0,0,.8),0 2px 4px rgba(0,0,0,.4);
+  transform-origin:50% -14px;transform:translateY(-120%) rotate(var(--r));opacity:0;cursor:zoom-in;border:0;display:block}
+.pola img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;filter:saturate(.92) contrast(1.04)}
+.pola::after{content:"";position:absolute;inset:7px 7px 30px;background:linear-gradient(160deg,rgba(255,240,220,.12),transparent 40%,rgba(80,40,140,.08));pointer-events:none}
+.pola .stamp{position:absolute;left:9px;right:9px;bottom:9px;font:400 9px/1 var(--f-mono);color:#9a8f7d;letter-spacing:.08em;display:flex;justify-content:space-between}
+.pola .stamp b{color:#e0742b;font-weight:500}
+.pin{position:absolute;left:50%;top:-16px;width:12px;height:26px;margin-left:-6px;border-radius:2px;
+  background:linear-gradient(90deg,#d8c3a0,#efe0c4 45%,#c4ad87);box-shadow:0 2px 3px rgba(0,0,0,.4);z-index:2}
+.pin::after{content:"";position:absolute;left:2px;right:2px;top:11px;height:3px;background:#9b8463;border-radius:1px}
+.pola.drop{animation:drop 1.25s cubic-bezier(.3,1.25,.4,1) forwards, sway 5s ease-in-out 1.3s infinite alternate}
+@keyframes drop{0%{transform:translateY(-120%) rotate(calc(var(--r) * -3));opacity:0}35%{opacity:1}100%{transform:translateY(0) rotate(var(--r));opacity:1}}
+@keyframes sway{from{transform:rotate(var(--r))}to{transform:rotate(calc(var(--r) * -.4))}}
+.gallery-scene .cap{margin-top:6px}
+.pola.wide{width:72%}.pola.wide img{aspect-ratio:2/1;object-fit:cover;object-position:left center}
+.lightbox{position:fixed;inset:0;z-index:20;background:rgba(6,6,9,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:grid;place-items:center;padding:24px 16px;opacity:0;pointer-events:none;transition:opacity .3s}
+.lightbox.open{opacity:1;pointer-events:auto}
+.lightbox .pola{width:min(86vw,400px);opacity:1;transform:rotate(-1.5deg) scale(.92);transition:transform .35s cubic-bezier(.2,.8,.2,1);cursor:zoom-out;padding-bottom:40px}
+.lightbox.open .pola{transform:rotate(-1.5deg) scale(1)}
+.lightbox .pola img{aspect-ratio:auto;max-height:70svh}
+
+/* final */
+.final .frame{transition:opacity 2.6s ease,filter 2.6s ease,transform 2.6s ease}
+.final.fading .frame{opacity:0;filter:blur(10px) brightness(.4);transform:scale(.96)}
+.final .end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:0 24px;pointer-events:none}
+.final .end p{font:italic 400 clamp(26px,7.4vw,40px)/1.25 var(--f-display);margin:0;max-width:17ch;text-wrap:balance}
+.final .end p span{opacity:0;filter:blur(8px);display:inline;transition:opacity 1.2s ease,filter 1.2s ease}
+.final .end p span.in{opacity:1;filter:none}
+.final .end p .hl{color:var(--violet);text-shadow:0 0 30px rgba(166,139,255,.5)}
+.final .again{opacity:0;transition:opacity 1.2s;pointer-events:none;font-size:13px;padding:11px 18px;color:var(--muted)}
+.final .again.show{opacity:1;pointer-events:auto}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .pola{opacity:1;transform:rotate(var(--r))}
+}
+</style>
+</head>
+<body>
+
+<div class="aura"></div><div class="grain"></div>
+<div class="steps hide" id="steps"></div>
+
+<main class="stage">
+
+  <!-- 0 start -->
+  <section class="scene active" data-i="0">
+    <div class="heart rise"></div>
+    <h1 class="hero rise d1">it's for u <em>dvshka</em></h1>
+    <p class="sub rise d2">(включи звук перед входом)</p>
+    <button class="btn solid rise d3" id="enter" type="button">войти 🔊</button>
+  </section>
+
+  <!-- 1 doxx -->
+  <section class="scene" data-i="1" data-dark>
+    <div class="term" id="term">
+      <div class="ln">&gt; connecting to dvshka.local …</div>
+      <div class="ln">&gt; bypassing cuteness firewall … <span class="ok">ok</span></div>
+      <div class="ln">&gt; collecting files … <span class="ok">ok</span></div>
+      <div class="bar"><b id="dbar"></b></div>
+    </div>
+    <p class="doxx" id="doxx"><span id="dtext"></span><span class="cur"></span></p>
+    <div class="reveal-wrap" id="dbtn"><button class="btn" data-next type="button">раскрыть данные <span class="arr">→</span></button></div>
+  </section>
+
+  <!-- 2 video1 -->
+  <section class="scene" data-i="2">
+    <div class="frame v rise"><video src="media/video1.mp4" poster="media/poster1.jpg" playsinline preload="metadata"></video></div>
+    <p class="cap rise d1">раскрываем секреты персонажа dvshka.</p>
+    <button class="btn rise d2" data-next type="button">смотреть дальше <span class="arr">→</span></button>
+  </section>
+
+  <!-- 3 video2 -->
+  <section class="scene" data-i="3">
+    <div class="frame sq rise"><video src="media/video2.mp4" poster="media/poster2.jpg" playsinline preload="metadata"></video></div>
+    <p class="cap rise d1">ты хотела эдит во тебе</p>
+    <button class="btn rise d2" data-next type="button">далее <span class="arr">→</span></button>
+  </section>
+
+  <!-- 4 video3 -->
+  <section class="scene" data-i="4">
+    <div class="frame sq rise"><video src="media/video3.mp4" poster="media/poster3.jpg" playsinline preload="metadata"></video></div>
+    <p class="cap rise d1">еще один .</p>
+    <button class="btn rise d2" data-next type="button">далее <span class="arr">→</span></button>
+  </section>
+
+  <!-- 5 gallery -->
+  <section class="scene gallery-scene" data-i="5">
+    <div class="ropes" id="ropes"></div>
+    <p class="cap">кадры которые смог добавить, ты великолепна .</p>
+    <button class="btn" data-next type="button">дальше <span class="arr">→</span></button>
+  </section>
+
+  <!-- 6 video4 -->
+  <section class="scene" data-i="6">
+    <div class="frame v rise"><video src="media/video4.mp4" poster="media/poster4.jpg" playsinline preload="metadata"></video></div>
+    <p class="cap rise d1">а это видео я официально пересмотрел уже раз 50</p>
+    <button class="btn rise d2" data-next type="button">к финалу <span class="arr">→</span></button>
+  </section>
+
+  <!-- 7 final -->
+  <section class="scene final" data-i="7">
+    <div class="frame v"><video src="media/final.mp4" poster="media/posterfinal.jpg" playsinline preload="metadata" id="finalv"></video></div>
+    <div class="end">
+      <p id="endtext"></p>
+      <button class="btn again" id="again" type="button">↺ с начала</button>
+    </div>
+  </section>
+</main>
+
+<div class="lightbox" id="lb"><figure class="pola" style="margin:0"><img id="lbimg" alt=""><div class="stamp"><span>dvshka</span><b id="lbn"></b></div></figure></div>
+
+<script>
+(()=>{
+const scenes=[...document.querySelectorAll('.scene')];
+const stepsEl=document.getElementById('steps');
+const N=scenes.length-1;
+for(let k=0;k<N;k++)stepsEl.appendChild(document.createElement('i'));
+let cur=0;
+
+/* video frames: tap to pause, progress line, mute */
+document.querySelectorAll('.frame').forEach(fr=>{
+  const v=fr.querySelector('video');
+  const p=document.createElement('div');p.className='prog';p.innerHTML='<b></b>';fr.appendChild(p);
+  const t=document.createElement('div');t.className='tap';t.innerHTML='<span></span>';fr.appendChild(t);
+  const m=document.createElement('button');m.className='mute';m.type='button';m.textContent='🔊';m.setAttribute('aria-label','звук');fr.appendChild(m);
+  m.addEventListener('click',e=>{e.stopPropagation();v.muted=!v.muted;m.textContent=v.muted?'🔇':'🔊'});
+  fr.addEventListener('click',()=>{v.paused?v.play().catch(()=>{}):v.pause()});
+  v.addEventListener('play',()=>fr.classList.remove('paused'));
+  v.addEventListener('pause',()=>fr.classList.add('paused'));
+  v.addEventListener('timeupdate',()=>{if(v.duration)p.firstChild.style.width=(v.currentTime/v.duration*100)+'%'});
+  if(v.id!=='finalv')v.loop=true;
+});
+
+function go(n){
+  if(n===cur||!scenes[n])return;
+  const from=scenes[cur],to=scenes[n];
+  from.querySelectorAll('video').forEach(v=>v.pause());
+  from.classList.remove('active');from.classList.add('leaving');
+  setTimeout(()=>from.classList.remove('leaving'),450);
+  to.classList.add('active');to.scrollTop=0;
+  cur=n;
+  document.body.classList.toggle('dark-scene',to.hasAttribute('data-dark'));
+  stepsEl.classList.toggle('hide',n===0||n===N);
+  [...stepsEl.children].forEach((s,k)=>s.classList.toggle('on',k<n));
+  const v=to.querySelector('video');
+  if(v){v.currentTime=0;v.muted=false;const pr=v.play();if(pr)pr.catch(()=>{v.closest('.frame').classList.add('paused')});}
+  // warm up next video
+  const nx=scenes[n+1]&&scenes[n+1].querySelector('video');if(nx)nx.preload='auto';
+  if(n===1)doxx();
+  if(n===5)hang();
+  if(n===N)finale();
+  if(n===N&&v)v.play().catch(()=>setTimeout(fadeOut,800));
+}
+document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>go(cur+1)));
+
+/* start: unlock audio on the first tap so later videos may play with sound */
+document.getElementById('enter').addEventListener('click',()=>{
+  document.querySelectorAll('video').forEach(v=>{v.muted=true;const p=v.play();if(p)p.then(()=>{v.pause();v.muted=false}).catch(()=>{v.muted=false})});
+  go(1);
+});
+
+/* doxx typing */
+let doxxed=false;
+function doxx(){
+  if(doxxed)return;doxxed=true;
+  const lines=[...document.querySelectorAll('#term .ln')],bar=document.getElementById('dbar');
+  lines.forEach((l,k)=>setTimeout(()=>l.classList.add('show'),250+k*420));
+  setTimeout(()=>{bar.style.transition='width 1.1s cubic-bezier(.5,0,.2,1)';bar.style.width='100%'},1300);
+  const txt='ну всё, поздравляю. я тебя официально задоксил',out=document.getElementById('dtext');
+  let i=0;setTimeout(function type(){out.textContent=txt.slice(0,++i);if(i<txt.length)setTimeout(type,txt[i-1]===','||txt[i-1]==='.'?260:38+Math.random()*40);else document.getElementById('dbtn').classList.add('show')},2500);
+}
+
+/* gallery on ropes */
+const photos=[1,2,3,4,5,6,7].map(n=>'media/photo'+n+'.jpg');
+const ropes=document.getElementById('ropes');
+const tilts=[-4,3,5,-3,-5,4,-2];
+for(let r=0;r<Math.ceil(photos.length/2);r++){
+  const rope=document.createElement('div');rope.className='rope';
+  const sag=r%2?16:22;
+  rope.innerHTML=`<svg viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0 2 Q50 ${sag} 100 2"/></svg><div class="row"></div>`;
+  const row=rope.querySelector('.row');
+  photos.slice(r*2,r*2+2).forEach((src,k)=>{
+    const idx=r*2+k;
+    const b=document.createElement('button');b.type='button';b.className='pola'+(idx===6?' wide':'');b.style.setProperty('--r',tilts[idx]+'deg');
+    b.style.marginTop=(k===0?sag*.35:sag*.35)+'px';
+    b.innerHTML=`<span class="pin"></span><img src="${src}" alt="" loading="eager"><span class="stamp"><span>dvshka</span><b>'26 · ${String(idx+1).padStart(2,'0')}</b></span>`;
+    b.addEventListener('click',()=>openLb(src,idx));
+    row.appendChild(b);
+  });
+  ropes.appendChild(rope);
+}
+let hung=false;
+function hang(){if(hung)return;hung=true;document.querySelectorAll('#ropes .pola').forEach((p,k)=>setTimeout(()=>p.classList.add('drop'),300+k*260))}
+const lb=document.getElementById('lb');
+function openLb(src,i){document.getElementById('lbimg').src=src;document.getElementById('lbn').textContent="'26 · "+String(i+1).padStart(2,'0');lb.classList.add('open')}
+lb.addEventListener('click',()=>lb.classList.remove('open'));
+
+/* finale */
+const endTxt='ты творишь контент для тысяч людей, а это - контент, созданный только для одной тебя';
+const endP=document.getElementById('endtext');
+endP.innerHTML=endTxt.split(' ').map(w=>`<span${/^(одной|тебя)$/.test(w)?' class="hl"':''}>${w}</span>`).join(' ');
+const fv=document.getElementById('finalv'),fin=scenes[N];
+let ended=false;
+let safety;
+function finale(){
+  clearTimeout(safety);safety=setTimeout(fadeOut,17000);
+  ended=false;fin.classList.remove('fading');
+  endP.querySelectorAll('span').forEach(s=>s.classList.remove('in'));
+  document.getElementById('again').classList.remove('show');
+}
+function fadeOut(){
+  if(ended)return;ended=true;
+  fin.classList.add('fading');document.body.classList.add('dark-scene');
+  // soften the audio as the picture goes
+  const a0=fv.volume;let t=0;const iv=setInterval(()=>{t+=.05;fv.volume=Math.max(0,a0*(1-t));if(t>=1){clearInterval(iv);fv.pause();fv.volume=a0}},90);
+  const ws=[...endP.querySelectorAll('span')];
+  ws.forEach((s,k)=>setTimeout(()=>s.classList.add('in'),2200+k*230));
+  setTimeout(()=>document.getElementById('again').classList.add('show'),2200+ws.length*230+1400);
+}
+fv.addEventListener('timeupdate',()=>{if(fv.duration&&fv.duration-fv.currentTime<1.6)fadeOut()});
+fv.addEventListener('ended',fadeOut);
+fv.addEventListener('error',()=>{if(cur===N)setTimeout(fadeOut,600)});
+document.getElementById('again').addEventListener('click',()=>{
+  doxxed=false;document.getElementById('dtext').textContent='';document.getElementById('dbtn').classList.remove('show');
+  document.querySelectorAll('#term .ln').forEach(l=>l.classList.remove('show'));const b=document.getElementById('dbar');b.style.transition='none';b.style.width='0';
+  hung=false;document.querySelectorAll('#ropes .pola').forEach(p=>p.classList.remove('drop'));
+  document.body.classList.remove('dark-scene');go(0);
+});
+})();
+</script>
+</body>
+</html>
